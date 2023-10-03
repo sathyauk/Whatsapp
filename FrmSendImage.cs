@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using RestSharp;
 using Whatsapp.Modal;
 
@@ -5,13 +6,16 @@ namespace Whatsapp
 {
     public partial class FrmSendImage : Form
     {
-
+        private readonly IConfiguration _configuration;
         private readonly CustomerContext _context;
+
         private int pinCode { get; set; } = 0;
-        public FrmSendImage(CustomerContext context)
+
+        public FrmSendImage(CustomerContext context, IConfiguration configuration)
         {
             InitializeComponent();
             _context = context;
+            _configuration= configuration;
         }
         private string GetImage()
         {
@@ -70,12 +74,15 @@ namespace Whatsapp
 
             foreach (var customer in customers)
             {
-                var url = "https://api.ultramsg.com/instance61189/messages/image";
+                //var url = "https://api.ultramsg.com/instance61189/messages/image";
+                var url = _configuration.GetSection("Whatsapp:ImageUrl").Value;
+                
                 var client = new RestClient(url);
 
                 var request = new RestRequest(url, Method.Post);
                 request.AddHeader("content-type", "application/x-www-form-urlencoded");
-                request.AddParameter("token", "b0lb60f0ca9xy8c3");
+                //request.AddParameter("token", "b0lb60f0ca9xy8c3");
+                request.AddParameter("token", _configuration.GetSection("Whatsapp:Token").Value);
                 request.AddParameter("to", customer.MobileNumber);
                 request.AddParameter("image", GetImage());
                 request.AddParameter("caption", "image Caption");

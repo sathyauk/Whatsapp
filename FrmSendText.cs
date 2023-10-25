@@ -32,10 +32,16 @@ namespace Whatsapp
         {
             var customers = GetCustomers();
 
-            foreach (var customer in customers)
+			progressBar1.Minimum = 0;
+			progressBar1.Maximum = customers.Count;
+			progressBar1.Step = 1;
+			progressBar1.Value = 0;
+			int count = 0;
+
+			foreach (var customer in customers)
             {
-                //var url = "https://api.ultramsg.com/instance61189/messages/image";
-                var url = _configuration.GetSection("Whatsapp:ChatUrl").Value;
+				count = count + 1;
+				var url = _configuration.GetSection("Whatsapp:ChatUrl").Value;
 
                 var client = new RestClient(url);
 
@@ -48,7 +54,9 @@ namespace Whatsapp
                 request.AddParameter("caption", "image Caption");
                 RestResponse response = client.Execute(request);
                 var output = response.Content;
-            }
+
+				progressBar1.Value = count;
+			}
         }
 
         private void cmbPinCode_SelectedIndexChanged(object sender, EventArgs e)

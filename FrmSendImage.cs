@@ -72,23 +72,28 @@ namespace Whatsapp
         private void btnSend_Click(object sender, EventArgs e)
         {
             var customers = GetCustomers(pinCode);
-
+            progressBar1.Minimum = 0;
+            progressBar1.Maximum = customers.Count;
+            progressBar1.Step = 1;
+            progressBar1.Value = 0;
+            int count = 0;
             foreach (var customer in customers)
             {
-                //var url = "https://api.ultramsg.com/instance61189/messages/image";
-                var url = _configuration.GetSection("Whatsapp:ImageUrl").Value;
-                
+                count = count + 1;
+				var url = _configuration.GetSection("Whatsapp:ImageUrl").Value;
+
                 var client = new RestClient(url);
 
                 var request = new RestRequest(url, Method.Post);
                 request.AddHeader("content-type", "application/x-www-form-urlencoded");
-                //request.AddParameter("token", "b0lb60f0ca9xy8c3");
                 request.AddParameter("token", _configuration.GetSection("Whatsapp:Token").Value);
                 request.AddParameter("to", customer.MobileNumber);
                 request.AddParameter("image", GetImage());
                 request.AddParameter("caption", "image Caption");
                 RestResponse response = client.Execute(request);
                 var output = response.Content;
+
+                progressBar1.Value = count;
             }
         }
     }
